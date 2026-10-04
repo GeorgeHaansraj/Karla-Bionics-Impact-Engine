@@ -1,0 +1,20 @@
+# Mengabaikan file kredensial rahasia
+.env
+karla-bionics-firebase-adminsdk-*.json
+
+# Mengabaikan folder cache sistem
+__pycache__/
+
+# Mengabaikan semua data lokal agar privasi narasumber terjaga
+*.csv
+hasil_ekstraksi_karla_2023.json
+data/
+
+# Mengabaikan folder virtual environment (jika suatu saat dipindahkan ke dalam proyek)
+karla-venv/
+venv/
+env/
+
+# Mengabaikan file log sistem operasi (opsional namun disarankan)
+.DS_Store
+Thumbs.db
