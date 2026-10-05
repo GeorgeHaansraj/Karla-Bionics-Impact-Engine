@@ -1,0 +1,6 @@
+[theme]
+primaryColor = "#005b9f" # Warna utama (misal: Biru Karla)
+backgroundColor = "#f8f9fa" # Latar belakang utama (abu-abu sangat terang/putih)
+secondaryBackgroundColor = "#e9ecef" # Latar belakang sidebar
+textColor = "#212529" # Warna teks (abu-abu gelap, lebih elegan dari hitam pekat)
+font = "sans serif"

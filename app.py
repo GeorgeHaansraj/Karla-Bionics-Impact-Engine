@@ -53,23 +53,39 @@ st.set_page_config(
 # ==========================================
 # 3. SISTEM ROUTING (SIDEBAR)
 # ==========================================
-st.sidebar.title("🦾 Karla Bionics")
-st.sidebar.markdown("### Navigasi Sistem")
+# st.sidebar.title("🦾 Karla Bionics")
+# st.sidebar.markdown("### Navigasi Sistem")
 
 # Membuat radio button untuk navigasi halaman
-halaman = st.sidebar.radio(
-    "Pilih Tampilan Dasbor:", ["Publik / CSR Showcase", "Internal R&D (Raw Data)"]
-)
+# halaman = st.sidebar.radio(
+#    "Pilih Tampilan Dasbor:", ["Publik / CSR Showcase", "Internal R&D (Raw Data)"]
+# )
 
+# st.sidebar.markdown("---")
+# st.sidebar.info(
+#    f"Status Koneksi: Terhubung ke Firestore\nTotal Data: {len(df)} Laporan"
+# )
+
+st.sidebar.title("🦾 Karla Bionics")
 st.sidebar.markdown("---")
 st.sidebar.info(
     f"Status Koneksi: Terhubung ke Firestore\nTotal Data: {len(df)} Laporan"
 )
+# (Bagian st.sidebar.radio sudah dihapus sepenuhnya)
 
 # ==========================================
-# 4. LOGIKA TAMPILAN (VIEW LOGIC)
+# 4. LOGIKA TAMPILAN & ROUTING (MENGGUNAKAN TABS)
 # ==========================================
-if halaman == "Publik / CSR Showcase":
+
+tab_publik, tab_internal = st.tabs(
+    ["📊 Dashboard CSR (Publik)", "🔐 Raw Data & AI (Internal)"]
+)
+
+with tab_publik:
+    # Pindahkan SEMUA baris kode dasbor publikmu ke sini
+    # (Hero cards, grafik peta, donut chart, teks narasi CSR)
+    st.header("Laporan Dampak Sosial")
+
     st.title("🌟 Laporan Dampak & Keberlanjutan CSR")
     st.write(
         "Selamat datang di Dasbor Publik Karla Bionics. Di sini kami menyoroti narasi positif, kemandirian pasien, dan dampak sosial yang terukur (SDG 4)."
@@ -268,7 +284,11 @@ if halaman == "Publik / CSR Showcase":
                 except Exception as e:
                     st.error(f"Terjadi kesalahan pada sistem AI: {str(e)}")
 
-elif halaman == "Internal R&D (Raw Data)":
+with tab_internal:
+    # Pindahkan SEMUA baris kode dasbor internalmu ke sini
+    # (Tabel pandas raw data, tombol Generate Narasi AI)
+    st.header("Manajemen Data Mentah")
+
     st.title("🔧 Intelijen Pemeliharaan & Audit Hardware")
     st.write(
         "Peringatan: Tampilan ini tidak disensor. Berisi raw data operasional, Red Flag Matrix, dan log keluhan spesifik dari setiap ID Pasien."
