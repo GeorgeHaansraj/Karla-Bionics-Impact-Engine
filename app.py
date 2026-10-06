@@ -176,27 +176,32 @@ with tab_publik:
     # 4. GENERATIVE STORYTELLING & EXPORT PDF
     st.subheader("🤖 Generative AI: Laporan Eksekutif Otomatis")
     st.write(
-        "Sistem AI akan membaca metrik saat ini dan merangkai narasi laporan CSR profesional secara otomatis."
+        "Sistem AI akan menganalisis metrik saat ini dan merangkai narasi laporan CSR bulanan secara otomatis."
     )
 
     # Input API Key secara aman di antarmuka
-    api_key_input = st.text_input(
-        "Masukkan OpenAI API Key (sk-...) untuk men-generate laporan:", type="password"
-    )
+    # api_key_input = st.text_input(
+    #    "Masukkan OpenAI API Key (sk-...) untuk men-generate laporan:", type="password"
+    # )
 
     if st.button("✨ Generate Narasi CSR & Siapkan PDF"):
-        if not api_key_input:
-            st.warning("⚠️ Silakan masukkan API Key OpenAI terlebih dahulu.")
-        else:
-            with st.spinner("AI sedang menganalisis data dan merangkai narasi..."):
-                try:
-                    # 1. ARAHKAN KE SERVER GROQ
-                    client = OpenAI(
-                        base_url="https://api.groq.com/openai/v1", api_key=api_key_input
-                    )
+        with st.spinner("AI sedang menganalisis data dan merangkai narasi..."):
+            try:
+                rahasia_api_key = os.getenv("GROQ_API_KEY")
 
-                    # Prompting dinamis dengan metrik real-time
-                    prompt_laporan = f"""
+                if not rahasia_api_key:
+                    st.error(
+                        "⚠️ Sistem gagal menemukan API Key di dalam environment (.env). Hubungi tim teknis."
+                    )
+                    st.stop()
+
+                # 1. ARAHKAN KE SERVER GROQ
+                client = OpenAI(
+                    base_url="https://api.groq.com/openai/v1", api_key=rahasia_api_key
+                )
+
+                # Prompting dinamis dengan metrik real-time
+                prompt_laporan = f"""
                     Tuliskan 2 paragraf narasi eksekutif yang profesional dan inspiratif untuk laporan donatur CSR Karla Bionics.
                     Gunakan data live berikut:
                     - Total Penerima Manfaat: {total_pasien} jiwa
@@ -209,80 +214,78 @@ with tab_publik:
                     - Gunakan bahasa Indonesia yang formal, elegan, dan apresiatif. Tanpa awalan sapaan surat.
                     """
 
-                    # Pemanggilan LLM (gpt-oss-120b) untuk menghasilkan narasi
-                    chat_completion = client.chat.completions.create(
-                        model="openai/gpt-oss-120b",  # Harus persis dengan teks di menu dropdown
-                        messages=[
-                            {
-                                "role": "system",
-                                "content": "Anda adalah spesialis komunikasi CSR dan analis dampak sosial.",
-                            },
-                            {"role": "user", "content": prompt_laporan},
-                        ],
-                        temperature=0.7,
-                    )
+                # Pemanggilan LLM (gpt-oss-120b) untuk menghasilkan narasi
+                chat_completion = client.chat.completions.create(
+                    model="openai/gpt-oss-120b",  # Harus persis dengan teks di menu dropdown
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "Anda adalah spesialis komunikasi CSR dan analis dampak sosial.",
+                        },
+                        {"role": "user", "content": prompt_laporan},
+                    ],
+                    temperature=0.7,
+                )
 
-                    narasi_ai = chat_completion.choices[0].message.content
+                narasi_ai = chat_completion.choices[0].message.content
 
-                    st.success("✅ Narasi berhasil dibuat!")
-                    st.info(narasi_ai)
+                st.success("✅ Narasi berhasil dibuat!")
+                st.info(narasi_ai)
 
-                    # Logika Pembuatan File PDF menggunakan FPDF
-                    pdf = FPDF()
-                    pdf.add_page()
-                    pdf.set_font("Arial", "B", 16)
-                    pdf.cell(
-                        0,
-                        10,
-                        "Laporan Eksekutif Dampak CSR - Karla Bionics",
-                        ln=True,
-                        align="C",
-                    )
-                    pdf.ln(10)
+                # Logika Pembuatan File PDF menggunakan FPDF
+                pdf = FPDF()
+                pdf.add_page()
+                pdf.set_font("Arial", "B", 16)
+                pdf.cell(
+                    0,
+                    10,
+                    "Laporan Eksekutif Dampak CSR - Karla Bionics",
+                    ln=True,
+                    align="C",
+                )
+                pdf.ln(10)
 
-                    pdf.set_font("Arial", "B", 12)
-                    pdf.cell(0, 8, "Ringkasan Metrik Utama:", ln=True)
-                    pdf.set_font("Arial", "", 12)
-                    pdf.cell(
-                        0, 8, f"- Total Penerima Manfaat: {total_pasien} Jiwa", ln=True
-                    )
-                    pdf.cell(
-                        0,
-                        8,
-                        f"- Total Jam Produktif: {total_jam_produktif} Jam",
-                        ln=True,
-                    )
-                    pdf.cell(
-                        0,
-                        8,
-                        f"- Pengguna Aktif & Terbantu: {utilitas_positif} Pasien",
-                        ln=True,
-                    )
-                    pdf.ln(10)
+                pdf.set_font("Arial", "B", 12)
+                pdf.cell(0, 8, "Ringkasan Metrik Utama:", ln=True)
+                pdf.set_font("Arial", "", 12)
+                pdf.cell(
+                    0, 8, f"- Total Penerima Manfaat: {total_pasien} Jiwa", ln=True
+                )
+                pdf.cell(
+                    0,
+                    8,
+                    f"- Total Jam Produktif: {total_jam_produktif} Jam",
+                    ln=True,
+                )
+                pdf.cell(
+                    0,
+                    8,
+                    f"- Pengguna Aktif & Terbantu: {utilitas_positif} Pasien",
+                    ln=True,
+                )
+                pdf.ln(10)
 
-                    pdf.set_font("Arial", "B", 12)
-                    pdf.cell(0, 8, "Narasi Dampak Berkelanjutan:", ln=True)
-                    pdf.set_font("Arial", "", 12)
+                pdf.set_font("Arial", "B", 12)
+                pdf.cell(0, 8, "Narasi Dampak Berkelanjutan:", ln=True)
+                pdf.set_font("Arial", "", 12)
 
-                    # FPDF memerlukan encoding khusus (latin-1) agar tidak error saat membaca teks AI
-                    narasi_bersih = narasi_ai.encode("latin-1", "replace").decode(
-                        "latin-1"
-                    )
-                    pdf.multi_cell(0, 7, txt=narasi_bersih)
+                # FPDF memerlukan encoding khusus (latin-1) agar tidak error saat membaca teks AI
+                narasi_bersih = narasi_ai.encode("latin-1", "replace").decode("latin-1")
+                pdf.multi_cell(0, 7, txt=narasi_bersih)
 
-                    # Output PDF ke dalam format byte string agar bisa diunduh oleh Streamlit
-                    pdf_output = pdf.output(dest="S").encode("latin-1")
+                # Output PDF ke dalam format byte string agar bisa diunduh oleh Streamlit
+                pdf_output = pdf.output(dest="S").encode("latin-1")
 
-                    # Tombol Unduh
-                    st.download_button(
-                        label="📄 Unduh Laporan PDF Eksekutif",
-                        data=pdf_output,
-                        file_name="Laporan_Eksekutif_Karla_Bionics.pdf",
-                        mime="application/pdf",
-                    )
+                # Tombol Unduh
+                st.download_button(
+                    label="📄 Unduh Laporan PDF Eksekutif",
+                    data=pdf_output,
+                    file_name="Laporan_Eksekutif_Karla_Bionics.pdf",
+                    mime="application/pdf",
+                )
 
-                except Exception as e:
-                    st.error(f"Terjadi kesalahan pada sistem AI: {str(e)}")
+            except Exception as e:
+                st.error(f"Terjadi kesalahan pada sistem AI: {str(e)}")
 
 with tab_internal:
     # Pindahkan SEMUA baris kode dasbor internalmu ke sini
